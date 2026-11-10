@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>multiapp</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><span class="logo">◐</span> multiapp</div>
+    <nav>
+      <button class="nav-btn active" data-tab="calendar"><span>📅</span> Calendar</button>
+      <button class="nav-btn" data-tab="reminders"><span>🔔</span> Reminders <i id="badge-reminders" class="badge" hidden></i></button>
+      <button class="nav-btn" data-tab="notes"><span>📝</span> Notes</button>
+      <button class="nav-btn" data-tab="progress"><span>📊</span> Progress</button>
+      <button class="nav-btn" data-tab="claude"><span>✨</span> Claude</button>
+    </nav>
+    <button class="nav-btn settings-btn" id="open-settings"><span>⚙️</span> Settings</button>
+  </aside>
+
+  <main>
+    <!-- Calendar -->
+    <section id="tab-calendar" class="tab active">
+      <div class="cal-layout">
+        <div class="cal-main">
+          <header class="cal-head">
+            <h1 id="cal-title"></h1>
+            <div class="cal-controls">
+              <button class="btn ghost" id="cal-prev" aria-label="Previous month">‹</button>
+              <button class="btn ghost" id="cal-today">Today</button>
+              <button class="btn ghost" id="cal-next" aria-label="Next month">›</button>
+            </div>
+          </header>
+          <div class="dow" id="cal-dow"></div>
+          <div class="grid" id="cal-grid"></div>
+        </div>
+
+        <aside class="day-panel">
+          <div class="panel-head">
+            <div>
+              <h2 id="day-title"></h2>
+              <p class="muted" id="day-sub"></p>
+            </div>
+            <button class="btn primary small" id="add-event">+ Event</button>
+          </div>
+          <div id="day-items"></div>
+          <label class="field-label" for="day-note">Notes for this day</label>
+          <textarea id="day-note" placeholder="Jot down comments, deadlines, thoughts…"></textarea>
+          <p class="muted tiny" id="note-status"></p>
+
+          <h3>Coming up</h3>
+          <div id="upcoming"></div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- Reminders -->
+    <section id="tab-reminders" class="tab">
+      <div class="narrow">
+        <h1>Reminders</h1>
+        <form id="rem-form" class="quick-add">
+          <input id="rem-text" type="text" placeholder="Remind me to…" required autocomplete="off">
+          <input id="rem-date" type="date" required aria-label="Date">
+          <input id="rem-time" class="time-input" aria-label="Time (24-hour)">
+          <select id="rem-repeat" aria-label="Repeat">
+            <option value="none">Once</option>
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+          </select>
+          <button class="btn primary" type="submit">Add</button>
+        </form>
+        <p class="muted tiny">Reminders are sent to your phone via ntfy when due.</p>
+        <div id="rem-list"></div>
+      </div>
+    </section>
+
+    <!-- Notes -->
+    <section id="tab-notes" class="tab notes-tab">
+      <div class="notes-layout">
+        <div class="notes-side">
+          <div class="notes-toolbar">
+            <input id="notes-search" type="search" placeholder="Search notes" autocomplete="off">
+            <div class="new-btns">
+              <button class="btn primary small" id="note-new" title="New note">+ Note</button>
+              <button class="btn ghost small" id="list-new" title="New checklist">☑ Checklist</button>
+            </div>
+          </div>
+          <div id="notes-list" class="notes-list"></div>
+        </div>
+        <div class="notes-editor" id="notes-editor">
+          <div class="editor-bar">
+            <span class="muted tiny" id="page-meta"></span>
+            <button class="btn danger small" id="page-delete" hidden>Delete</button>
+          </div>
+          <textarea id="page-body" placeholder="Start typing… the first line becomes the title." disabled></textarea>
+
+          <div id="checklist-editor" class="checklist" hidden>
+            <input id="cl-title" class="cl-title" placeholder="Checklist title" autocomplete="off">
+            <div class="cl-reset">
+              <select id="cl-mode" aria-label="Reset schedule">
+                <option value="manual">Reset only when I do</option>
+                <option value="daily">Reset every day at</option>
+              </select>
+              <input id="cl-time" class="time-input" aria-label="Reset time (24-hour)" hidden>
+              <button class="btn ghost small" id="cl-reset-now" title="Untick everything now">↺ Reset now</button>
+              <span class="muted tiny" id="cl-last"></span>
+            </div>
+            <div class="cl-progress"><div id="cl-bar"></div></div>
+            <p class="muted tiny" id="cl-count"></p>
+            <div id="cl-items" class="cl-items"></div>
+            <button class="btn ghost small" id="cl-add">+ Add item</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Progress -->
+    <section id="tab-progress" class="tab">
+      <div class="progress-wrap">
+        <header class="chat-head">
+          <h1>Progress</h1>
+          <select id="pg-list" aria-label="Checklist" hidden></select>
+        </header>
+        <div id="pg-empty" class="card" hidden>
+          <h3>No checklist yet</h3>
+          <p class="muted">Create one in the Notes tab (☑ Checklist). Each time it resets, that day is saved here.</p>
+        </div>
+        <div id="pg-body" class="card" hidden>
+          <div class="hm-scroll"><div id="pg-months" class="hm-months"></div><div id="pg-grid" class="hm-grid"></div></div>
+          <div class="hm-legend muted tiny">Less <i class="hm l0"></i><i class="hm l1"></i><i class="hm l2"></i><i class="hm l3"></i><i class="hm l4"></i> More</div>
+          <p class="muted tiny" id="pg-note"></p>
+        </div>
+        <div id="pg-tip" class="hm-tip" hidden></div>
+      </div>
+    </section>
+
+    <!-- Claude -->
+    <section id="tab-claude" class="tab">
+      <div class="chat">
+        <header class="chat-head">
+          <h1>Claude</h1>
+          <button class="btn ghost small" id="chat-clear">Clear chat</button>
+        </header>
+        <div id="chat-setup" class="card setup" hidden>
+          <h3>Connect Claude</h3>
+          <ol>
+            <li>Create an API key at <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a>.</li>
+            <li>Open <code>~/multiapp/.env</code> and set <code>ANTHROPIC_API_KEY=your-key</code>.</li>
+            <li>Restart the app: <code>launchctl kickstart -k gui/$(id -u)/com.multiapp.server</code></li>
+          </ol>
+        </div>
+        <div id="chat-log" class="chat-log"></div>
+        <form id="chat-form" class="chat-form">
+          <textarea id="chat-input" rows="1" placeholder="Ask Claude, or say “remind me Thursday at 3pm to email my tutor”" required></textarea>
+          <button class="btn primary" type="submit" id="chat-send">Send</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- Event dialog -->
+  <dialog id="event-dialog">
+    <form method="dialog" id="event-form">
+      <h2 id="event-dialog-title">New event</h2>
+      <label>Title <input id="ev-title" required autocomplete="off"></label>
+      <label class="check"><input type="checkbox" id="ev-allday"> All day</label>
+      <label>Start
+        <span class="dt-row"><input id="ev-start-date" type="date"><input id="ev-start-time" class="time-input" aria-label="Start time (24-hour)"></span>
+      </label>
+      <label>End (optional)
+        <span class="dt-row"><input id="ev-end-date" type="date"><input id="ev-end-time" class="time-input" aria-label="End time (24-hour)"></span>
+      </label>
+      <label>Location <input id="ev-location" autocomplete="off"></label>
+      <label>Notes <textarea id="ev-desc" rows="3" placeholder="Shown in the reminder on your phone"></textarea></label>
+      <label>Remind me
+        <select id="ev-remind">
+          <option value="0">At start time</option>
+          <option value="5">5 minutes before</option>
+          <option value="15" selected>15 minutes before</option>
+          <option value="30">30 minutes before</option>
+          <option value="60">1 hour before</option>
+          <option value="1440">1 day before</option>
+          <option value="-1">No reminder</option>
+        </select>
+      </label>
+      <div class="dialog-actions">
+        <button type="button" class="btn danger" id="ev-delete" hidden>Delete</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn ghost" id="ev-cancel">Cancel</button>
+        <button type="submit" class="btn primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Settings dialog -->
+  <dialog id="settings-dialog">
+    <div class="settings">
+      <h2>Settings</h2>
+      <h3>Phone reminders (ntfy)</h3>
+      <p class="muted">Install the free <strong>ntfy</strong> app on your phone and subscribe to this topic. Keep it private — anyone who knows it can read your reminders.</p>
+      <div class="topic-box"><code id="set-topic">…</code><button class="btn ghost small" id="copy-topic">Copy</button></div>
+      <button class="btn primary" id="test-notif">Send test notification</button>
+      <span class="muted tiny" id="test-status"></span>
+
+      <h3>Status</h3>
+      <ul class="status">
+        <li><span id="st-claude" class="dot"></span> Claude API key</li>
+        <li><span id="st-login" class="dot"></span> Starts at login</li>
+      </ul>
+      <div class="dialog-actions"><span class="spacer"></span><button class="btn ghost" id="settings-close">Close</button></div>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" hidden></div>
+  <script src="/static/timefield.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>
