@@ -85,3 +85,6 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 
 ## Data
 Everything is stored locally in `data/multiapp.db` (SQLite). Back it up by copying that file. The only data that leaves your laptop: reminder text sent to ntfy, and chat messages (plus planner data Claude looks up) sent to the Anthropic API.
+
+## License
+MIT, see [LICENSE](LICENSE). Reuse it however you like.
