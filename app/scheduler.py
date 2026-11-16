@@ -3,7 +3,7 @@ import asyncio
 import logging
 from datetime import datetime
 
-from . import db, notify, services
+from . import calsync, db, notify, services
 
 log = logging.getLogger("multiapp.scheduler")
 
@@ -71,3 +71,20 @@ async def run_forever() -> None:
         except Exception:  # never let the loop die
             log.exception("scheduler tick failed")
         await asyncio.sleep(TICK_SECONDS)
+
+
+CALENDAR_SYNC_SECONDS = 60
+
+
+async def calendar_sync_forever() -> None:
+    """Keep multiapp and the Mac Calendar in step. Failures (e.g. permission not granted) are logged and retried."""
+    if not calsync.enabled():
+        return
+    while True:
+        try:
+            stats = await asyncio.to_thread(calsync.sync_once)
+            if any(stats.values()):
+                log.info("calendar sync: %s", stats)
+        except Exception as e:
+            log.warning("calendar sync failed: %s", e)
+        await asyncio.sleep(CALENDAR_SYNC_SECONDS)

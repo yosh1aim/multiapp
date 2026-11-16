@@ -64,6 +64,9 @@ CREATE TABLE IF NOT EXISTS chat_messages (
     content_json TEXT NOT NULL,
     created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS deleted_events (
+    apple_uid TEXT PRIMARY KEY      -- events deleted in multiapp, still to be removed from Calendar.app
+);
 CREATE TABLE IF NOT EXISTS settings (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL
@@ -81,6 +84,8 @@ def init_db() -> None:
         conn.executescript(SCHEMA)
         # Upgrade databases created before these columns existed.
         _ensure_column(conn, "events", "remind_min", "INTEGER NOT NULL DEFAULT 15")
+        _ensure_column(conn, "events", "apple_uid", "TEXT")
+        _ensure_column(conn, "events", "sync_hash", "TEXT")
         _ensure_column(conn, "reminders", "event_id", "INTEGER")
         _ensure_column(conn, "notes", "kind", "TEXT NOT NULL DEFAULT 'text'")
         _ensure_column(conn, "notes", "reset_mode", "TEXT NOT NULL DEFAULT 'manual'")

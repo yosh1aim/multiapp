@@ -203,6 +203,9 @@ def delete_event(eid: int) -> bool:
     """Delete an event and its auto-created reminder. Returns False if it didn't exist."""
     with db.connect() as conn:
         conn.execute("DELETE FROM reminders WHERE event_id=?", (eid,))
+        row = conn.execute("SELECT apple_uid FROM events WHERE id=?", (eid,)).fetchone()
+        if row and row["apple_uid"]:  # tell the next Calendar.app sync to delete it there too
+            conn.execute("INSERT OR IGNORE INTO deleted_events(apple_uid) VALUES(?)", (row["apple_uid"],))
         return conn.execute("DELETE FROM events WHERE id=?", (eid,)).rowcount > 0
 
 

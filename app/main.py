@@ -23,8 +23,10 @@ STATIC = ROOT / "static"
 async def lifespan(_: FastAPI):
     init_db()
     task = asyncio.create_task(scheduler.run_forever())  # first tick = catch-up of missed reminders
+    sync_task = asyncio.create_task(scheduler.calendar_sync_forever())
     yield
     task.cancel()
+    sync_task.cancel()
 
 
 app = FastAPI(title="multiapp", lifespan=lifespan)
